@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <canvas style="position: fixed; width: 100%; height: 100%; top: 0%; left: 0%;" id="cnv"></canvas>
-<center style="position: fixed; top: 30%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 375%; translate: -50%; width: 100%; text-shadow: 2px 2px #8f8fff;">REALLY GREAT TITLE</center>
-<center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; translate: -5%;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
-<center style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; translate: -55%; width: 5%;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
+<center style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 375%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
+<center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; transform: translate( -5%);" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
+<center style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; transform: translate(-55%); width: 5%; user-select: none;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
+<img src="crab.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none;" onclick="crabclick()" draggable="false"></img>
+<video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="crabrave.mp4"></video>
 <script>
+    //Misc
+    let menucrab = 0;
+    let mnucrab = document.getElementById('menucrab');
+    mnucrab.style.transform = "rotate(0)";
+
     //Controls
     let up = false, left = false, right = false, xv = 0, yv = 0, enter = false, shift = false, hide = false;
 
@@ -42,9 +49,32 @@
     function mouseout() {
         document.getElementById('strt').style.backgroundColor = '#1f1f5f';
     }
+    function crabclick() {
+        menucrab++;
+        if (menucrab >= 17) return false;
+        setTimeout(function() {
+            mnucrab.style.filter = "brightness(150%)";
+            mnucrab.style.transform = "rotate(30deg)";
+        }, 150);
+        setTimeout(function() {
+            mnucrab.style.transform = "rotate(-30deg)";
+            mnucrab.style.filter = "brightness(100%)";
+        }, 400);
+        setTimeout(function() {
+            mnucrab.style.transform = "rotate(0)";
+        }, 525);
+        if (menucrab >= 16) mnucrab.src = "crabdead.png"; else if (menucrab == 15) mnucrab.src = "crabnoshell.png"; else if (menucrab >= 10) mnucrab.src = "crabcrack.png";
+    }
 
     function setup() {
-        window.alert("setup");
+        win();
+    }
+
+    function win() {
+        document.getElementById('win').style.display = "block";
+        document.getElementById('win').play();
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, cnv.width, cnv.height);
     }
 
 </script>
