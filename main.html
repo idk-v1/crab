@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<canvas style="position: fixed; width: 100%; height: 100%; top: 0%; left: 0%;" id="cnv"></canvas>
+<canvas style="position: fixed; width: 100%; height: 100%; top: 0%; left: 0%; image-rendering: pixelated;" id="cnv"></canvas>
 <center id="title" style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 375%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
 <center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; transform: translate( -5%);" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
 <center id="bttntxt" style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; transform: translate(-55%); width: 5%; user-select: none;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
-<img style="position: fixed; width: 5%; height: 5%; image-rendering: pixelated; display: none;" id="draw"></img>
 <img src="textures/shell1.png" id="menushell" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <img src="textures/crack_small.png" id="menucracks" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <img src="textures/crab1.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
@@ -13,8 +12,11 @@
 
     //World
     let mm = true;
-    let level1l1 = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-    let level1l2 = [1, 1, 2, 3, 4, 4, 4, 4, 5, 6, 6, 5, 4, 4, 3, 2, 1, 1, 1, 1, 1, 2, 3, 4, 4, 4, 4, 3, 2, 1, 1, 1, 1, 2, 3, 4, 4, 4, 3, 2];
+
+    let level1l16 = [0, 0, 0, 0, 0, 0, 0, 2, 3, 6, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let level1l17 = [0, 0, 2, 3, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 6, 2, 0, 0, 0, 0, 0, 2, 3, 1, 1, 1, 1, 6, 2, 0, 0, 0, 0, 2, 3, 1, 1, 1, 6, 2];
+    let level1l18 = [1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4];
+    let level1l19 = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
 
     //Time
     let dt = 0;
@@ -39,13 +41,28 @@
     let up = false, left = false, right = false, enter = false, shift = false, hide = false;
 
     //Player
-    let x = 0, y = 0, d = 0, h = 0, xv = 0, yv = 0;
+    let x = 0, y = 0, d = -1, h = 0, xv = 0, yv = 0, grav = 0.5;
 
     //Canvas
     let cnv = document.getElementById('cnv');
     let ctx = cnv.getContext('2d');
-    let drawerImg = document.getElementById('draw');  
-    ctx.imageSmoothingEnabled = false;  
+    ctx.imageSmoothingEnabled = false;
+    let bl0 = new Image();
+    bl0.src = "textures/block0.png";
+    let bl1 = new Image();
+    bl1.src = "textures/block1.png";
+    let bl2 = new Image();
+    bl2.src = "textures/block2.png";
+    let bl3 = new Image();
+    bl3.src = "textures/block3.png";
+    let bl4 = new Image();
+    bl4.src = "textures/block4.png";
+    let bl6 = new Image();
+    bl6.src = "textures/block6.png";
+    let crabmain = new Image();
+    crabmain.src = "textures/crab1.png";
+    let shellmain = new Image();
+    shellmain.src = "textures/shell1.png";
 
     //Keys
     document.addEventListener('keydown', function(event) {
@@ -130,19 +147,58 @@
             mnucrab.style.left = `${45 - mnucrabpos / 7.5}%`;
             mnusign.style.left = `${45 - mnucrabpos / 7.5}%`;
         }
+
+        if (!mm) {
+            if (left) {xv += 0.25; d = 1}
+            if (right) {xv -= 0.25; d = -1;}
+            if (up) yv += 3;
+            yv -= grav;
+            y += yv;
+            yv -= yv / 10;
+            x += xv;
+            xv -= xv / 10;
+        }
     }
 
     function render() {
-        for (let i = 0; i < level1l1.length; i++) {
-            if (level1l2[i] == 1) {
-                drawerImg.src = "textures/grass1top.png";
-                ctx.drawImage(drawerImg, i * cnv.height / 20, 18 * cnv.height / 20, cnv.height / 20, cnv.height / 20);
-            }
-            if (level1l1[i] == 1) {
-                drawerImg.src = "textures/grass1top.png";
-                ctx.drawImage(drawerImg, i * cnv.height / 20, 19 * cnv.height / 20, cnv.height / 20, cnv.height / 20);
-            }
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        for (let i = 0; i < Math.ceil(cnv.width / 10); i++) {
+
+            if (level1l16[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 6 * 32);
+            if (level1l16[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 6 * 32);
+            if (level1l16[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 6 * 32);
+            if (level1l16[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 6 * 32);
+            if (level1l16[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 6 * 32);
+            if (level1l16[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 6 * 32);
+
+            if (level1l17[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 7 * 32);
+            if (level1l17[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 7 * 32);
+            if (level1l17[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 7 * 32);
+            if (level1l17[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 7 * 32);
+            if (level1l17[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 7 * 32);
+            if (level1l17[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 7 * 32);
+
+            if (level1l18[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 8 * 32);
+            if (level1l18[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 8 * 32);
+            if (level1l18[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 8 * 32);
+            if (level1l18[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 8 * 32);
+            if (level1l18[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 8 * 32);
+            if (level1l18[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 8 * 32);
+
+            if (level1l19[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 9 * 32);
+            if (level1l19[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 9 * 32);
+            if (level1l19[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 9 * 32);
+            if (level1l19[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 9 * 32);
+            if (level1l19[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 9 * 32);
+            if (level1l19[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 9 * 32);
+            
         }
+        ctx.save();
+        ctx.scale(d, 1);
+        ctx.translate((d == -1) ? -cnv.width + 32 : 0, 0);
+        ctx.drawImage(shellmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
+        ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
+        ctx.restore();
     }
 
     function setup() {
