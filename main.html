@@ -3,8 +3,11 @@
 <center style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 375%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
 <center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; transform: translate( -5%);" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
 <center style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; transform: translate(-55%); width: 5%; user-select: none;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
-<img src="crab.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
-<video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="crabrave.mp4"></video>
+<img src="textures/shell1.png" id="menushell" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
+<img src="textures/crack_small.png" id="menucracks" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
+<img src="textures/crab1.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
+<img src="textures/sign_play.png" id="menusign" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
+<video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="textures/crabrave.mp4"></video>
 <script>
     //Misc
     let dt = 0;
@@ -13,7 +16,14 @@
     let mnucrabpos = 0;
     let craban = 0;
     let mnucrab = document.getElementById('menucrab');
+    let mnushell = document.getElementById('menushell');
+    let mnucracks = document.getElementById('menucracks');
+    let mnusign = document.getElementById('menusign');
+    mnusign.style.transform = "rotate(0)";
+    mnushell.style.transform = "rotate(0)";
     mnucrab.style.transform = "rotate(0)";
+    mnucracks.style.transform = "rotate(0)";
+    mnucracks.style.display = "none";
     let int = setInterval(tick, 0);
 
     //Controls
@@ -61,13 +71,14 @@
 
     function update() {
         craban++;
-        if (menucrab >= 16) {
-            if (craban >= 20) {craban = 0; mnucrab.src = "crabnoshell.png";}
-            else if (craban >= 15) mnucrab.src = "crabwalknoshell1.png";
-            else if (craban >= 10) mnucrab.src = "crabwalknoshell2.png";
-            else if (craban >= 5) mnucrab.src = "crabwalknoshell3.png";
+        if (menucrab >= 15) {
+            if (craban >= 20) {craban = 0; mnucrab.src = "textures/crab1.png";}
+            else if (craban >= 15) {mnucrab.src = "textures/crab1w1.png";}
+            else if (craban >= 10) {mnucrab.src = "textures/crab1w2.png";}
+            else if (craban >= 5) {mnucrab.src = "textures/crab1w3.png";}
             mnucrabpos++;
             mnucrab.style.left = `${45 - mnucrabpos / 7.5}%`;
+            mnusign.style.left = `${45 - mnucrabpos / 7.5}%`;
         }
     }
 
@@ -83,20 +94,34 @@
     }
     function crabclick() {
         menucrab++;
-        if (menucrab >= 15) return false;
+        if (menucrab > 15) return false;
         setTimeout(function() {
             mnucrab.style.filter = "brightness(150%)";
             mnucrab.style.transform = "rotate(15deg)";
+            mnucracks.style.filter = "brightness(150%)";
+            mnucracks.style.transform = "rotate(15deg)";
+            mnushell.style.filter = "brightness(150%)";
+            mnushell.style.transform = "rotate(15deg)";
+            mnusign.style.transform = "rotate(15deg)";
         }, 150);
         setTimeout(function() {
             mnucrab.style.transform = "rotate(-15deg)";
             mnucrab.style.filter = "brightness(100%)";
+            mnucracks.style.transform = "rotate(-15deg)";
+            mnucracks.style.filter = "brightness(100%)";
+            mnushell.style.transform = "rotate(-15deg)";
+            mnushell.style.filter = "brightness(100%)";
+            mnusign.style.transform = "rotate(-15deg)";
         }, 400);
         setTimeout(function() {
             mnucrab.style.transform = "rotate(0)";
+            mnucracks.style.transform = "rotate(0)";
+            mnushell.style.transform = "rotate(0)";
+            mnusign.style.transform = "rotate(0)";
         }, 525);
-        if (menucrab == 15) mnucrab.src = "crabnoshell.png"; 
-        else if (menucrab >= 10 && menucrab <= 14) mnucrab.src = "crabcrack.png";
+        if (menucrab == 15) {mnucracks.style.display = "none"; mnushell.style.display = "none"; mnusign.src = "textures/sign_f.png";} 
+        else if (menucrab >= 10 && menucrab <= 14) mnucracks.src = "textures/crack_large.png";
+        else if (menucrab >= 5 && menucrab <= 9) mnucracks.style.display = "initial";
     }
 
     function setup() {
