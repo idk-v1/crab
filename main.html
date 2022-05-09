@@ -12,26 +12,27 @@
 <script>
 
     //World
-    let world1w = 20;
     let world1h = 10;
-    let collisions = new Array(world1h * world1w).fill(0);
     let world1 = [
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
-    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 3, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 2, 3, 4, 4, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 2, 3, 4, 4, 4, 4, 
+    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 3, 4, 4, 4, 4, 4, 4,
     ];
+    let world1w = 20;
+    let collisions = new Array(world1.length).fill(0);
 
     //Time
     let dt = 0;
     let lastTime = performance.now();
     let int = setInterval(tick, 0);
+    let play = true;
 
     //Main Menu
     let menucrab = 0;
@@ -51,7 +52,7 @@
     let up = false, left = false, right = false, enter = false, shift = false, hide = false;
 
     //Player
-    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false, speed = 0.5, jump = 32;
+    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false, speed = 0.5, jump = 32, hidden = false;
 
     //Canvas
     let cnv = document.getElementById('cnv');
@@ -59,22 +60,25 @@
     ctx.imageSmoothingEnabled = false;
     
     let bl0 = new Image();
-    bl0.src = "textures/block0.png";
     let bl1 = new Image();
-    bl1.src = "textures/block1.png";
     let bl2 = new Image();
-    bl2.src = "textures/block2.png";
     let bl3 = new Image();
-    bl3.src = "textures/block3.png";
     let bl4 = new Image();
-    bl4.src = "textures/block4.png";
+    let bl5 = new Image();
     let bl6 = new Image();
-    bl6.src = "textures/block6.png";
     let crabmain = new Image();
-    crabmain.src = "textures/crab1.png";
     let shellmain = new Image();
-    shellmain.src = "textures/shell1.png";
     let sky = new Image();
+
+    bl0.src = "textures/block0.png";
+    bl1.src = "textures/block1.png";
+    bl2.src = "textures/missing.png";
+    bl3.src = "textures/block3.png";
+    bl4.src = "textures/block4.png";
+    bl5.src = "textures/missing.png";
+    bl6.src = "textures/block6.png";
+    crabmain.src = "textures/crab1.png";
+    shellmain.src = "textures/shell1.png";
     sky.src = "textures/sky.png";
 
     //Keys
@@ -93,6 +97,7 @@
         if (event.key == "s" || event.key == "S") hide = false;
         if (event.key == "Shift") shift = false;
         if (event.key == "Enter") enter = false;
+        if (event.key == "Escape") play = !play;
     });
 
     //Menu screen
@@ -151,6 +156,10 @@
     }
 
     function update() {
+
+        if (!mm && !play) {cnv.style.filter = "blur(5px)";}
+        else {cnv.style.filter = "blur(0px)";}
+
         if (menucrab >= 15 && mm) {
             craban++;
             if (craban >= 20) {craban = 0; mnucrab.src = "textures/crab1.png";}
@@ -162,7 +171,7 @@
             mnusign.style.left = `${45 - mnucrabpos / 7.5}%`;
         }
 
-        if (!mm) {
+        if (!mm && play) {
 
             for (let i = 0; i < world1w * world1h; i++) {
                 if (world1[i] == 1 || world1[i] == 4)
@@ -175,7 +184,8 @@
             if (left && !hide) {xv += speed; d = 1}
             if (right && !hide) {xv -= speed; d = -1;}
             if (up && onground && !hide) {yv += jump; onground = false;}
-            if (hide) {yv -= 2 * grav;}
+            if (hide) {yv -= 2 * grav; hidden = true;}
+            else hidden = false;
             yv -= grav;
             y += yv;
             yv -= yv / 10;
@@ -202,7 +212,7 @@
         ctx.scale(d, 1);
         ctx.translate((d < 0) ? -cnv.width + 32 : 0, 0);
         ctx.drawImage(shellmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
-        if (!hide) ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
+        if (!hidden) ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
         ctx.restore();
 
         document.getElementById('pos').innerHTML = `Position: ${(x / 32).toFixed(1)}x, ${Math.round(y / 32).toFixed(1)}y`;
