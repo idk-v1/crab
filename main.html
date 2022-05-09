@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<canvas style="position: fixed; width: 100%; height: 100%; top: 0%; left: 0%; image-rendering: pixelated;" id="cnv"></canvas>
+<canvas width="1000%" height="500%" style="position: fixed; width: 100%; height: 100%; top: 0%; left: 0%; image-rendering: pixelated;" id="cnv"></canvas>
 <center id="title" style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 375%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
 <center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; transform: translate( -5%);" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
 <center id="bttntxt" style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; transform: translate(-55%); width: 5%; user-select: none;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
@@ -12,12 +12,21 @@
 <script>
 
     //World
-    let mm = true;
-
-    let level1l16 = [0, 0, 0, 0, 0, 0, 0, 2, 3, 6, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    let level1l17 = [0, 0, 2, 3, 1, 1, 1, 4, 4, 4, 4, 1, 1, 1, 6, 2, 0, 0, 0, 0, 0, 2, 3, 1, 1, 1, 1, 6, 2, 0, 0, 0, 0, 2, 3, 1, 1, 1, 6, 2];
-    let level1l18 = [1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4];
-    let level1l19 = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+    let world1w = 20;
+    let world1h = 10;
+    let collisions = new Array(world1h * world1w).fill(0);
+    let world1 = [
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1, 
+    0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 6, 0, 0, 0, 0, 0, 3, 1
+    ];
 
     //Time
     let dt = 0;
@@ -42,7 +51,7 @@
     let up = false, left = false, right = false, enter = false, shift = false, hide = false;
 
     //Player
-    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false;
+    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false, speed = 0.5, jump = 32;
 
     //Canvas
     let cnv = document.getElementById('cnv');
@@ -87,6 +96,7 @@
     });
 
     //Menu screen
+    let mm = true;
     ctx.fillStyle = '#1f1f38';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
     function mouseover() {
@@ -153,52 +163,40 @@
         }
 
         if (!mm) {
-            if (left && !hide) {xv += 0.25; d = 1}
-            if (right && !hide) {xv -= 0.25; d = -1;}
-            if (up && onground && !hide) {yv += 32; onground = false;}
+
+            for (let i = 0; i < world1w * world1h; i++) {
+                if (world1[i] == 1 || world1[i] == 4)
+                    collisions[i] = 2;
+                else if (world1[i] == 0)
+                    collisions[i] = 0;
+                else
+                    collisions[i] = 1;
+            }
+            if (left && !hide) {xv += speed; d = 1}
+            if (right && !hide) {xv -= speed; d = -1;}
+            if (up && onground && !hide) {yv += jump; onground = false;}
             if (hide) {yv -= 2 * grav;}
             yv -= grav;
             y += yv;
             yv -= yv / 10;
             x += xv;
             onground ? xv -= xv / 10 : xv -= xv / 20;
-            if (y < -5 * 32 - 5) {y = -5 * 32 - 5; onground = true;}
+            if (y < -32 * 2 + 10) {y = -32 * 2 + 10; onground = true;}
         }
     }
 
     function render() {
         ctx.clearRect(0, 0, cnv.width, cnv.height);
         ctx.drawImage(sky, 0, 0, cnv.width, cnv.height);
-        for (let i = 0; i < Math.ceil(cnv.width / 10); i++) {
+        for (let i = 0; i < world1w * world1h; i++) {
 
-            if (level1l16[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 6 * 32);
-            if (level1l16[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 6 * 32);
-            if (level1l16[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 6 * 32);
-            if (level1l16[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 6 * 32);
-            if (level1l16[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 6 * 32);
-            if (level1l16[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 6 * 32);
+            if (world1[i] == 0) ctx.drawImage(bl0, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
+            if (world1[i] == 1) ctx.drawImage(bl1, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
+            if (world1[i] == 2) ctx.drawImage(bl2, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
+            if (world1[i] == 3) ctx.drawImage(bl3, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
+            if (world1[i] == 4) ctx.drawImage(bl4, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
+            if (world1[i] == 6) ctx.drawImage(bl6, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
 
-            if (level1l17[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 7 * 32);
-            if (level1l17[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 7 * 32);
-            if (level1l17[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 7 * 32);
-            if (level1l17[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 7 * 32);
-            if (level1l17[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 7 * 32);
-            if (level1l17[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 7 * 32);
-
-            if (level1l18[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 8 * 32);
-            if (level1l18[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 8 * 32);
-            if (level1l18[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 8 * 32);
-            if (level1l18[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 8 * 32);
-            if (level1l18[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 8 * 32);
-            if (level1l18[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 8 * 32);
-
-            if (level1l19[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 9 * 32);
-            if (level1l19[i] == 1) ctx.drawImage(bl1, x + i * 32, y + 9 * 32);
-            if (level1l19[i] == 2) ctx.drawImage(bl2, x + i * 32, y + 9 * 32);
-            if (level1l19[i] == 3) ctx.drawImage(bl3, x + i * 32, y + 9 * 32);
-            if (level1l19[i] == 4) ctx.drawImage(bl4, x + i * 32, y + 9 * 32);
-            if (level1l19[i] == 6) ctx.drawImage(bl6, x + i * 32, y + 9 * 32);
-            
         }
         ctx.save();
         ctx.scale(d, 1);
