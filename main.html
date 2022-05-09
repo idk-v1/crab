@@ -8,6 +8,7 @@
 <img src="textures/crab1.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <img src="textures/sign_play.png" id="menusign" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="textures/crabrave.mp4"></video>
+<div style="position: fixed; top: 0%; left: 0%;" id="pos"></div>
 <script>
 
     //World
@@ -41,12 +42,13 @@
     let up = false, left = false, right = false, enter = false, shift = false, hide = false;
 
     //Player
-    let x = 0, y = 0, d = -1, h = 0, xv = 0, yv = 0, grav = 0.5;
+    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false;
 
     //Canvas
     let cnv = document.getElementById('cnv');
     let ctx = cnv.getContext('2d');
     ctx.imageSmoothingEnabled = false;
+    
     let bl0 = new Image();
     bl0.src = "textures/block0.png";
     let bl1 = new Image();
@@ -63,21 +65,23 @@
     crabmain.src = "textures/crab1.png";
     let shellmain = new Image();
     shellmain.src = "textures/shell1.png";
+    let sky = new Image();
+    sky.src = "textures/sky.png";
 
     //Keys
     document.addEventListener('keydown', function(event) {
-        if (event.key == "a") left = true;
-        if (event.key == "d") right = true;
-        if (event.key == "w") up = true;
-        if (event.key == "s") hide = true;
+        if (event.key == "a" || event.key == "A") left = true;
+        if (event.key == "d" || event.key == "D") right = true;
+        if (event.key == "w" || event.key == "W") up = true;
+        if (event.key == "s" || event.key == "S") hide = true;
         if (event.key == "Shift") shift = true;
         if (event.key == "Enter") enter = true;
     });
     document.addEventListener('keyup', function(event) {
-        if (event.key == "a") left = false;
-        if (event.key == "d") right = false;
-        if (event.key == "w") up = false;
-        if (event.key == "s") hide = false;
+        if (event.key == "a" || event.key == "A") left = false;
+        if (event.key == "d" || event.key == "D") right = false;
+        if (event.key == "w" || event.key == "W") up = false;
+        if (event.key == "s" || event.key == "S") hide = false;
         if (event.key == "Shift") shift = false;
         if (event.key == "Enter") enter = false;
     });
@@ -149,19 +153,22 @@
         }
 
         if (!mm) {
-            if (left) {xv += 0.25; d = 1}
-            if (right) {xv -= 0.25; d = -1;}
-            if (up) yv += 3;
+            if (left && !hide) {xv += 0.25; d = 1}
+            if (right && !hide) {xv -= 0.25; d = -1;}
+            if (up && onground && !hide) {yv += 32; onground = false;}
+            if (hide) {yv -= 2 * grav;}
             yv -= grav;
             y += yv;
             yv -= yv / 10;
             x += xv;
-            xv -= xv / 10;
+            onground ? xv -= xv / 10 : xv -= xv / 20;
+            if (y < -5 * 32 - 5) {y = -5 * 32 - 5; onground = true;}
         }
     }
 
     function render() {
         ctx.clearRect(0, 0, cnv.width, cnv.height);
+        ctx.drawImage(sky, 0, 0, cnv.width, cnv.height);
         for (let i = 0; i < Math.ceil(cnv.width / 10); i++) {
 
             if (level1l16[i] == 0) ctx.drawImage(bl0, x + i * 32, y + 6 * 32);
@@ -195,10 +202,12 @@
         }
         ctx.save();
         ctx.scale(d, 1);
-        ctx.translate((d == -1) ? -cnv.width + 32 : 0, 0);
+        ctx.translate((d < 0) ? -cnv.width + 32 : 0, 0);
         ctx.drawImage(shellmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
-        ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
+        if (!hide) ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
         ctx.restore();
+
+        document.getElementById('pos').innerHTML = `Position: ${(x / 32).toFixed(1)}x, ${Math.round(y / 32).toFixed(1)}y`;
     }
 
     function setup() {
