@@ -11,19 +11,21 @@
 <div style="position: fixed; top: 0%; left: 0%;" id="pos"></div>
 <script>
 
+    //error-redo-player-position-system-ha-ha-this-will-not-run(x & y -> x & *world1w);
+
     //World
     let world1h = 10;
     let world1 = [
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 2, 3, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 2, 3, 4, 4, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 2, 3, 4, 4, 4, 4, 
-    0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 3, 4, 4, 4, 4, 4, 4,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ];
     let world1w = 20;
     let collisions = new Array(world1.length).fill(0);
@@ -52,7 +54,7 @@
     let up = false, left = false, right = false, enter = false, shift = false, hide = false;
 
     //Player
-    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false, speed = 0.5, jump = 32, hidden = false;
+    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false, speed = 0.125, jump = 32, hidden = false;
 
     //Canvas
     let cnv = document.getElementById('cnv');
@@ -104,6 +106,9 @@
     let mm = true;
     ctx.fillStyle = '#1f1f38';
     ctx.fillRect(0, 0, cnv.width, cnv.height);
+
+    //setup();
+
     function mouseover() {
         document.getElementById('strt').style.backgroundColor = '#2f2f6f';
     }
@@ -184,14 +189,19 @@
             if (left && !hide) {xv += speed; d = 1}
             if (right && !hide) {xv -= speed; d = -1;}
             if (up && onground && !hide) {yv += jump; onground = false;}
-            if (hide) {yv -= 2 * grav; hidden = true;}
+            if (hide && !onground) {yv -= 2 * grav; hidden = true;}
             else hidden = false;
             yv -= grav;
             y += yv;
             yv -= yv / 10;
             x += xv;
-            onground ? xv -= xv / 10 : xv -= xv / 20;
-            if (y < -32 * 2 + 10) {y = -32 * 2 + 10; onground = true;}
+            onground ? xv -= xv / 50 : xv -= xv / 100;
+            if (hidden && onground) xv += xv / 75;
+            if (shift) xv += xv / 25;
+            if (y < 10) {y = 10; onground = true;}
+
+            if (collisions[y * world1w] == 2) {document.getElementById('pos').style.background = "#ff0000";}
+            else document.getElementById('pos').style.background = "#ffffff";
         }
     }
 
@@ -200,12 +210,12 @@
         ctx.drawImage(sky, 0, 0, cnv.width, cnv.height);
         for (let i = 0; i < world1w * world1h; i++) {
 
-            if (world1[i] == 0) ctx.drawImage(bl0, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
-            if (world1[i] == 1) ctx.drawImage(bl1, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
-            if (world1[i] == 2) ctx.drawImage(bl2, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
-            if (world1[i] == 3) ctx.drawImage(bl3, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
-            if (world1[i] == 4) ctx.drawImage(bl4, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
-            if (world1[i] == 6) ctx.drawImage(bl6, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w) * 32);
+            if (world1[i] == 0) ctx.drawImage(bl0, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
+            if (world1[i] == 1) ctx.drawImage(bl1, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
+            if (world1[i] == 2) ctx.drawImage(bl2, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
+            if (world1[i] == 3) ctx.drawImage(bl3, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
+            if (world1[i] == 4) ctx.drawImage(bl4, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
+            if (world1[i] == 6) ctx.drawImage(bl6, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
 
         }
         ctx.save();
@@ -215,7 +225,7 @@
         if (!hidden) ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
         ctx.restore();
 
-        document.getElementById('pos').innerHTML = `Position: ${(x / 32).toFixed(1)}x, ${Math.round(y / 32).toFixed(1)}y`;
+        document.getElementById('pos').innerHTML = `Position: ${(x / 32).toFixed(1)}x, ${Math.round(y / 32).toFixed(1)}y | Speed: ${xv.toFixed(1)}x, ${yv.toFixed(1)}y`;
     }
 
     function setup() {
