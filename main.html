@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<canvas width="1000%" height="500%" style="position: fixed; width: 100%; height: 100%; top: 0%; left: 0%; image-rendering: pixelated;" id="cnv"></canvas>
-<center id="title" style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 375%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
+<canvas width="1000%" height="1000%" style="position: fixed; top: 0%; left: 50%; image-rendering: pixelated; transform: translate(-50%);" id="cnv"></canvas>
+<center id="title" style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 200%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
 <center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; transform: translate( -5%);" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
 <center id="bttntxt" style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; transform: translate(-55%); width: 5%; user-select: none;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
 <img src="textures/shell1.png" id="menushell" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
@@ -8,33 +8,10 @@
 <img src="textures/crab1.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <img src="textures/sign_play.png" id="menusign" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="textures/crabrave.mp4"></video>
-<div style="position: fixed; top: 0%; left: 0%;" id="pos"></div>
+<div style="position: fixed; top: 0%; left: 0%; color: white" id="pos"></div>
 <script>
 
-    //error-redo-player-position-system-ha-ha-this-will-not-run(x & y -> x & *world1w);
-
-    //World
-    let world1h = 10;
-    let world1 = [
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    ];
-    let world1w = 20;
-    let collisions = new Array(world1.length).fill(0);
-
-    //Time
-    let dt = 0;
-    let lastTime = performance.now();
     let int = setInterval(tick, 0);
-    let play = true;
 
     //Main Menu
     let menucrab = 0;
@@ -50,62 +27,33 @@
     mnucracks.style.transform = "rotate(0)";
     mnucracks.style.display = "none";
 
+    //Canvas
+    let cnv = document.getElementById('cnv');
+    let ctx = cnv.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    //Menu screen
+    let mm = true;
+    document.querySelector('body').style.backgroundColor = "#222233";
+
+    //World
+    let world1h = 20;
+    let world1w = 20;
+
+    //Time
+    let dt = 0;
+    let lastTime = performance.now();
+    let play = true;
+
     //Controls
     let up = false, left = false, right = false, enter = false, shift = false, hide = false;
 
     //Player
     let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, grav = 1, onground = false, speed = 0.125, jump = 32, hidden = false;
 
-    //Canvas
-    let cnv = document.getElementById('cnv');
-    let ctx = cnv.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    
-    let bl0 = new Image();
-    let bl1 = new Image();
-    let bl2 = new Image();
-    let bl3 = new Image();
-    let bl4 = new Image();
-    let bl5 = new Image();
-    let bl6 = new Image();
-    let crabmain = new Image();
-    let shellmain = new Image();
-    let sky = new Image();
-
-    bl0.src = "textures/block0.png";
-    bl1.src = "textures/block1.png";
-    bl2.src = "textures/missing.png";
-    bl3.src = "textures/block3.png";
-    bl4.src = "textures/block4.png";
-    bl5.src = "textures/missing.png";
-    bl6.src = "textures/block6.png";
-    crabmain.src = "textures/crab1.png";
-    shellmain.src = "textures/shell1.png";
-    sky.src = "textures/sky.png";
-
-    //Keys
-    document.addEventListener('keydown', function(event) {
-        if (event.key == "a" || event.key == "A") left = true;
-        if (event.key == "d" || event.key == "D") right = true;
-        if (event.key == "w" || event.key == "W") up = true;
-        if (event.key == "s" || event.key == "S") hide = true;
-        if (event.key == "Shift") shift = true;
-        if (event.key == "Enter") enter = true;
-    });
-    document.addEventListener('keyup', function(event) {
-        if (event.key == "a" || event.key == "A") left = false;
-        if (event.key == "d" || event.key == "D") right = false;
-        if (event.key == "w" || event.key == "W") up = false;
-        if (event.key == "s" || event.key == "S") hide = false;
-        if (event.key == "Shift") shift = false;
-        if (event.key == "Enter") enter = false;
-        if (event.key == "Escape") play = !play;
-    });
-
-    //Menu screen
-    let mm = true;
-    ctx.fillStyle = '#1f1f38';
-    ctx.fillRect(0, 0, cnv.width, cnv.height);
+    //Textures
+    let crab1 = new Image(); crab1.onerror = function() {crab1.src = 'textures/missing.png'}; crab1.src = "textures/crab1.png";
+    let grass = new Image(); grass.onerror = function() {grass.src = 'textures/missing.png'}; grass.src = "textures/grass.png";
 
     //setup();
 
@@ -147,7 +95,6 @@
         else if (menucrab >= 5 && menucrab <= 9) mnucracks.style.display = "initial";
     }
 
-    //Functions
     function tick() {
         let now = performance.now();
         dt += now - lastTime;
@@ -156,11 +103,13 @@
             dt -= 1000 / 60;
             update();
         }
-        if (!mm)
-            render();
+        render();
     }
 
     function update() {
+
+        cnv.width = window.innerHeight;
+        cnv.height = window.innerHeight;
 
         if (!mm && !play) {cnv.style.filter = "blur(5px)";}
         else {cnv.style.filter = "blur(0px)";}
@@ -177,55 +126,26 @@
         }
 
         if (!mm && play) {
-
-            for (let i = 0; i < world1w * world1h; i++) {
-                if (world1[i] == 1 || world1[i] == 4)
-                    collisions[i] = 2;
-                else if (world1[i] == 0)
-                    collisions[i] = 0;
-                else
-                    collisions[i] = 1;
-            }
-            if (left && !hide) {xv += speed; d = 1}
-            if (right && !hide) {xv -= speed; d = -1;}
-            if (up && onground && !hide) {yv += jump; onground = false;}
-            if (hide && !onground) {yv -= 2 * grav; hidden = true;}
-            else hidden = false;
-            yv -= grav;
-            y += yv;
-            yv -= yv / 10;
-            x += xv;
-            onground ? xv -= xv / 50 : xv -= xv / 100;
-            if (hidden && onground) xv += xv / 75;
-            if (shift) xv += xv / 25;
-            if (y < 10) {y = 10; onground = true;}
-
-            if (collisions[y * world1w] == 2) {document.getElementById('pos').style.background = "#ff0000";}
-            else document.getElementById('pos').style.background = "#ffffff";
         }
     }
 
     function render() {
         ctx.clearRect(0, 0, cnv.width, cnv.height);
-        ctx.drawImage(sky, 0, 0, cnv.width, cnv.height);
-        for (let i = 0; i < world1w * world1h; i++) {
 
-            if (world1[i] == 0) ctx.drawImage(bl0, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
-            if (world1[i] == 1) ctx.drawImage(bl1, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
-            if (world1[i] == 2) ctx.drawImage(bl2, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
-            if (world1[i] == 3) ctx.drawImage(bl3, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
-            if (world1[i] == 4) ctx.drawImage(bl4, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
-            if (world1[i] == 6) ctx.drawImage(bl6, x + (i - Math.floor(i / world1w) * world1w) * 32, y + Math.floor(i / world1w - 1) * 32);
-
+        if (mm) {
+            ctx.fillStyle = '#1f1f38';
+            ctx.fillRect(0, 0, cnv.width, cnv.height);
         }
-        ctx.save();
-        ctx.scale(d, 1);
-        ctx.translate((d < 0) ? -cnv.width + 32 : 0, 0);
-        ctx.drawImage(shellmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
-        if (!hidden) ctx.drawImage(crabmain, cnv.width / 2 - 16, cnv.height / 2 - 16, 32 * d, 32);
-        ctx.restore();
 
-        document.getElementById('pos').innerHTML = `Position: ${(x / 32).toFixed(1)}x, ${Math.round(y / 32).toFixed(1)}y | Speed: ${xv.toFixed(1)}x, ${yv.toFixed(1)}y`;
+        if (!mm) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(1, 0.5);
+            ctx.rotate(45 * Math.PI / 180);
+            ctx.drawImage(grass, 50, 50, 32, 32);
+            ctx.restore();
+            document.getElementById('pos').innerHTML = `Position: ${(x / 32).toFixed(1)}x, ${Math.round(y / 32).toFixed(1)}y | Speed: ${xv.toFixed(1)}x, ${yv.toFixed(1)}y`;
+        }
     }
 
     function setup() {
@@ -237,6 +157,25 @@
         document.getElementById('strt').remove();
         document.getElementById('bttntxt').remove();
         mm = false;
+
+        //Keys
+        document.addEventListener('keydown', function(event) {
+        if (event.key == "a" || event.key == "A") left = true;
+        if (event.key == "d" || event.key == "D") right = true;
+        if (event.key == "w" || event.key == "W") up = true;
+        if (event.key == "s" || event.key == "S") hide = true;
+        if (event.key == "Shift") shift = true;
+        if (event.key == "Enter") enter = true;
+        });
+        document.addEventListener('keyup', function(event) {
+        if (event.key == "a" || event.key == "A") left = false;
+        if (event.key == "d" || event.key == "D") right = false;
+        if (event.key == "w" || event.key == "W") up = false;
+        if (event.key == "s" || event.key == "S") hide = false;
+        if (event.key == "Shift") shift = false;
+        if (event.key == "Enter") enter = false;
+        if (event.key == "Escape") play = !play;
+        });
     }
 
     function win() {
