@@ -8,11 +8,9 @@
 <img src="textures/crab1.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <img src="textures/sign_play.png" id="menusign" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <!-- video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="textures/crabrave.mp4"></video -->
-<div style="position: fixed; top: 0%; left: 0%; color: white" id="pos"></div>
+<div style="position: fixed; top: 0%; left: 0%; color: white; font-weight: 400; font-family: 'Courier New', Courier, monospace;" id="pos"></div>
 <script src="textures.js"></script>
 <script>
-
-    //https://www.piskelapp.com/p/create/sprite
 
     //Main Menu
     let menucrab = 0;
@@ -38,6 +36,7 @@
     document.querySelector('body').style.backgroundColor = "#222233";
 
     //Time
+    let time = 0;
     let dt = 0;
     let lastTime = performance.now();
     let play = true;
@@ -47,7 +46,7 @@
     let up = false, left = false, right = false, enter = false, shift = false, down = false;
 
     //Player
-    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, speed = 0.125, hidden = false;
+    let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, speed = 0.125, hidden = false, inWater = false;
 
     //setup();
     let int = setInterval(tick, 0);
@@ -124,28 +123,41 @@
         }
 
         if (!mm && play) {
+
+            time++;
+            if (time >= 10000) time = 0;
+
+            if (
+                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 || 
+                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 2 || 
+                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 3 || 
+                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 4 || 
+                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 5
+                ) inWater = true;
+            else inWater = false;
+
             if (left && -x > 0 && world1[Math.round((Math.ceil((-x - 13) / 48)) + (Math.floor(-y / 48)) * world1w) - 1] != 0) {
-                xv = 10;
+                xv += 10;
             }
             if (right && -x < world1w * 48 - 13 && world1[Math.round((Math.floor((-x + 13) / 48)) + (Math.floor(-y / 48)) * world1w)] != 0) {
-                xv = -10;
+                xv += -10;
             }
             if (up && -y > 0 && world1[Math.round((Math.floor(-x / 48)) + (Math.floor((-y - 13) / 48)) * world1w)] != 0) {
-                yv = 10;
+                yv += 10;
             }
             if (down && -y < world1h * 48 - 13 && world1[Math.round((Math.floor(-x / 48)) + (Math.ceil((-y + 13) / 48)) * world1w) - world1w] != 0) {
-                yv = -10;
+                yv += -10;
             }
             if (-x < 0) x = 0;
             if (-x > world1w * 48) x = -world1w * 48 + 13;
             if (-y < 0) y = 0;
             if (-y > world1h * 48) y = -world1h * 48 + 13;
-            xv = Math.round(xv);
-            yv = Math.round(yv);
-            y += Math.round(yv / 2 / (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 ? 1.5 : 1) + (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 ? 2 : 0));
-            x += Math.round(xv / 2 / (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 ? 1.5 : 1));
-            xv /= 48;
-            yv /= 48;
+            xv = Math.round(xv + 2 * ((world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 2 ? 2 : 0) - (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 4 ? 2 : 0))) / (inWater ? 2 : 1);
+            yv = Math.round(yv + 2 * ((world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 ? 2 : 0) - (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 3 ? 2 : 0))) / (inWater ? 2 : 1);
+            y += Math.round(yv / 2);
+            x += Math.round(xv / 2);
+            xv /= 10;
+            yv /= 10;
         }
     }
 
@@ -164,36 +176,97 @@
             ctx.rotate(45 * Math.PI / 180);
             for (let i = 0; i < world1.length; i++) {
                 switch(world1[i]) {
+
+                    //WATER
                     case 1:
                         ctx.drawImage(water1, 0, alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
                         break;
                     case 2:
-                        ctx.drawImage(sand1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        ctx.drawImage(water2, alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
                         break;
                     case 3:
-                        ctx.drawImage(moss1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        ctx.drawImage(water3, 0, 32 - alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
                         break;
                     case 4:
-                        ctx.drawImage(grass1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        ctx.drawImage(water4, 32 - alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
                         break;
                     case 5:
+                        ctx.drawImage(water5, 0, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+
+                    //SAND
+                    case 6:
+                        ctx.drawImage(sand1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 7:
+                        ctx.drawImage(sand2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 8:
+                        ctx.drawImage(sand3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 9:
+                        ctx.drawImage(sand4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 10:
+                        ctx.drawImage((i % 5 == 3 ? sand4 : i % 5 == 2 ? sand3 : i % 5 == 1 ? sand2 : sand1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+
+                    case 11:
+                        ctx.drawImage(moss1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 12:
+                        ctx.drawImage(moss2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 13:
+                        ctx.drawImage(moss3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 14:
+                        ctx.drawImage(moss4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 15:
+                        ctx.drawImage((i % 5 == 3 ? moss4 : i % 5 == 2 ? moss3 : i % 5 == 1 ? moss2 : moss1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+
+                    case 16:
+                        ctx.drawImage(grass1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
+                    case 21:
                         ctx.drawImage(dirt1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                }
+                    default:
+                        ctx.clearRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48)
+                }   
             }
             ctx.restore();
             ctx.save();
             ctx.translate(cnv.width / 2, cnv.height / 2);
             ctx.drawImage(crab1, 0, 0);
             ctx.restore();
-            ctx.fillStyle = "#00000080";
+            ctx.fillStyle = `rgba(
+            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)},
+            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)}, 
+            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5)}, 
+            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 20000 + 0.125)}
+            )`;
+
             ctx.fillRect(0, 0, cnv.width, cnv.height);
             document.getElementById('pos').innerHTML = `
-            Position: ${(-x).toFixed(1)}x, ${Math.round(-y).toFixed(1)}y <br>
-            Speed: ${-xv.toFixed(1)}x, ${-yv.toFixed(1)}y <br>
-            On Block Id: ${world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)]} <br>
-            Array: ${Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)} / ${world1.length - 1} <br>
-            Canvas Size: ${cnv.width}x, ${cnv.height}y
+            Position: ${(-x).toFixed(1)}x | ${Math.round(-y).toFixed(1)}y <br>
+            Speed: ${(Math.abs(xv)).toFixed(1)}x | ${(Math.abs(yv)).toFixed(1)}y <br>
+            Block ID: ${world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)]} <br>
+            Array: ${Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)} / ${world1.length - 1} | ${world1w}w ${world1h}h <br>
+            Canvas Size: ${cnv.width} x ${cnv.height} <br>
+            Time: ${time} / 10000upd <br> 
+            Overlay: 
+            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5).toFixed(1)}r |
+            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5).toFixed(1)}g |
+            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5).toFixed(1)}b |
+            ${(((time >= 5000 ? (time - 5000) : (5000 - time)) / 20000 + 0.125) * 100).toFixed(1)}a <br>
+            <span style="color: ${down ? '#00ff00' : '#ff0000'}">down</span>
+            <span style="color: ${left ? '#00ff00' : '#ff0000'}">left</span>
+            <span style="color: ${right ? '#00ff00' : '#ff0000'}">right</span>
+            <span style="color: ${up ? '#00ff00' : '#ff0000'}">up</span>
+            <span style="color: ${inWater ? '#00ff00' : '#ff0000'}">inWater</span>
             `;
         }
     }
