@@ -9,6 +9,11 @@
 <img src="textures/sign_play.png" id="menusign" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
 <!-- video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="textures/crabrave.mp4"></video -->
 <div style="position: fixed; top: 0%; left: 0%; color: white; font-weight: 400; font-family: 'Courier New', Courier, monospace;" id="pos"></div>
+<img src="textures/cr.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="right" dragable = "false" ></img>
+<img src="textures/cl.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="left" dragable = "false" ></img>
+<img src="textures/cu.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="up" dragable = "false" ></img>
+<img src="textures/cd.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="down" dragable = "false" ></img>
+<img src="textures/ch.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="hide" dragable = "false" ></img>
 <script src="textures/textures.js"></script>
 <script>
 
@@ -34,6 +39,7 @@
     //Menu screen
     let mm = true;
     document.querySelector('body').style.backgroundColor = "#222233";
+    document.addEventListener('contextmenu', event => event.preventDefault());
 
     //Time
     let time = 0;
@@ -43,7 +49,27 @@
     let alt = 0;
 
     //Controls
-    let up = false, left = false, right = false, enter = false, shift = false, down = false;
+    let up = false, left = false, right = false, enter = false, shift = false, down = false, touch = false;
+    let rc = document.getElementById("right");
+    let lc = document.getElementById("left");
+    let uc = document.getElementById("up");
+    let dc = document.getElementById("down");
+    let hc = document.getElementById('hide');
+    rc.style.width = window.innerWidth / 20 + "px"; rc.style.height = window.innerWidth / 20 + "px"; rc.style.right = (window.innerWidth / 20 + 16) * 0 + "px"; rc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
+    lc.style.width = window.innerWidth / 20 + "px"; lc.style.height = window.innerWidth / 20 + "px"; lc.style.right = (window.innerWidth / 20 + 16) * 2 + "px"; lc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
+    uc.style.width = window.innerWidth / 20 + "px"; uc.style.height = window.innerWidth / 20 + "px"; uc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; uc.style.bottom = (window.innerWidth / 20 + 16) * 2 + "px";
+    dc.style.width = window.innerWidth / 20 + "px"; dc.style.height = window.innerWidth / 20 + "px"; dc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; dc.style.bottom = (window.innerWidth / 20 + 16) * 0 + "px";
+    hc.style.width = window.innerWidth / 20 + "px"; hc.style.height = window.innerWidth / 20 + "px"; hc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; hc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
+    rc.addEventListener('touchstart', function(event) {right = true});
+    lc.addEventListener('touchstart', function(event) {left = true});
+    uc.addEventListener('touchstart', function(event) {up = true});
+    dc.addEventListener('touchstart', function(event) {down = true}); 
+    hc.addEventListener('touchstart', function(event) {hidden = true}); 
+    rc.addEventListener('touchend', function(event) {right = false});
+    lc.addEventListener('touchend', function(event) {left = false});
+    uc.addEventListener('touchend', function(event) {up = false});
+    dc.addEventListener('touchend', function(event) {down = false});  
+    hc.addEventListener('touchend', function(event) {hidden = false});      
 
     //Player
     let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, speed = 0.125, hidden = false, inWater = false;
@@ -104,6 +130,20 @@
     }
 
     function update() {
+
+        if (touch) {
+            rc.style.display = "block";
+            lc.style.display = "block";
+            uc.style.display = "block";
+            dc.style.display = "block";
+            hc.style.display = "block";
+        } else {
+            rc.style.display = "none";
+            lc.style.display = "none";
+            uc.style.display = "none";
+            dc.style.display = "none";
+            hc.style.display = "none";
+        }
 
         cnv.width = window.innerHeight;
         cnv.height = window.innerHeight;
@@ -267,6 +307,8 @@
             <span style="color: ${right ? '#00ff00' : '#ff0000'}">right</span>
             <span style="color: ${up ? '#00ff00' : '#ff0000'}">up</span>
             <span style="color: ${inWater ? '#00ff00' : '#ff0000'}">inWater</span>
+            <span style="color: ${touch ? '#00ff00' : '#ff0000'}">touch</span>
+            <span style="color: ${hidden ? '#00ff00' : '#ff0000'}">hidden</span>
             `;
         }
     }
@@ -283,11 +325,11 @@
 
         //Keys
         document.addEventListener('keydown', function(event) {
-        if (event.key == "a" || event.key == "A") left = true;
-        if (event.key == "d" || event.key == "D") right = true;
-        if (event.key == "w" || event.key == "W") up = true;
-        if (event.key == "s" || event.key == "S") down = true;
-        if (event.key == "Shift") shift = true;
+        if (event.key == "a" || event.key == "A") {left = true; touch = false;}
+        if (event.key == "d" || event.key == "D") {right = true; touch = false;}
+        if (event.key == "w" || event.key == "W") {up = true; touch = false;}
+        if (event.key == "s" || event.key == "S") {down = true; touch = false;}
+        if (event.key == "Shift") {shift = true; hidden = true; touch = false;}
         if (event.key == "Enter") enter = true;
         });
         document.addEventListener('keyup', function(event) {
@@ -295,9 +337,12 @@
         if (event.key == "d" || event.key == "D") right = false;
         if (event.key == "w" || event.key == "W") up = false;
         if (event.key == "s" || event.key == "S") down = false;
-        if (event.key == "Shift") shift = false;
+        if (event.key == "Shift") {shift = false; hidden = false;}
         if (event.key == "Enter") enter = false;
         if (event.key == "Escape") play = !play;
+        });
+        document.addEventListener('touchstart', function(event) {
+            touch = true;
         });
     }
 
