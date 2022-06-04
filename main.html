@@ -138,7 +138,7 @@
         cnv.width = window.innerHeight;
         cnv.height = window.innerHeight;
 
-        if (!mm && !play) {cnv.style.filter = "blur(5px)";}
+        if (!mm && !play) {cnv.style.filter = "blur(10px)";}
         else {cnv.style.filter = "blur(0px)";}
 
         if (menucrab >= 15 && mm) {
@@ -160,16 +160,16 @@
             if (cblock(1) || cblock(2) || cblock(3) || cblock(4) || cblock(5)) inWater = true; else inWater = false;
 
             if (left && -x > 0 && world1[Math.round((Math.ceil((-x - 13) / 48)) + (Math.floor(-y / 48)) * world1w) - 1] != 0) {
-                xv += 10;
+                xv += 10 * (hidden ? 0 : 1);
             }
             if (right && -x < world1w * 48 - 13 && world1[Math.round((Math.floor((-x + 13) / 48)) + (Math.floor(-y / 48)) * world1w)] != 0) {
-                xv += -10;
+                xv += -10 * (hidden ? 0 : 1);
             }
             if (up && -y > 0 && world1[Math.round((Math.floor(-x / 48)) + (Math.floor((-y - 13) / 48)) * world1w)] != 0) {
-                yv += 10;
+                yv += 10 * (hidden ? 0 : 1);
             }
             if (down && -y < world1h * 48 - 13 && world1[Math.round((Math.floor(-x / 48)) + (Math.ceil((-y + 13) / 48)) * world1w) - world1w] != 0) {
-                yv += -10;
+                yv += -10 * (hidden ? 0 : 1);
             }
             if (-x < 0) x = 0;
             if (-x > world1w * 48) x = -world1w * 48;
@@ -256,19 +256,21 @@
             ctx.rotate(45 * Math.PI / 180);
             let grad = ctx.createRadialGradient(0, 0, cnv.width * (750 / cnv.height) / 10, 0, 0, cnv.width * (750 / cnv.height) * 1.625);
             grad.addColorStop(0, "#22223300");
-            grad.addColorStop(0.125, "#22223380");
-            grad.addColorStop(0.25, "#222233ff");
+            grad.addColorStop(0.125, "rgba(34, 34, 51," + ((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 150 + 0.2) + ")");
+            grad.addColorStop(0.25, "rgba(34, 34, 51," + ((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 150 + 0.2) + ")");
+            grad.addColorStop(0.375, "#222233ff");
             ctx.fillStyle = grad;
             ctx.fillRect(-cnv.width, -cnv.height, cnv.width * 2, cnv.height * 2);
             ctx.restore();
             ctx.save();
             ctx.translate(cnv.width / 2, cnv.height / 2);
-            ctx.drawImage(crab1, 0, 0, 32 * (cnv.width / 750), 32 * (cnv.height / 750));
+            ctx.drawImage(shell1, 0, 0, 32 * (cnv.width / 750), 32 * (cnv.height / 750));
+            if (!hidden) ctx.drawImage(crab1, 0, 0, 32 * (cnv.width / 750), 32 * (cnv.height / 750));
             ctx.restore();
             ctx.fillStyle = `rgba(
             ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)},
             ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)}, 
-            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5)}, 
+            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 2)}, 
             ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 20000 + 0.125)}
             )`;
 
@@ -277,7 +279,7 @@
             if (caps) {
             document.getElementById('pos').innerHTML = `
             Position: ${(-x).toFixed(1)}x | ${Math.round(-y).toFixed(1)}y <br>
-            Speed: ${(Math.abs(xv)).toFixed(1)}x | ${(Math.abs(yv)).toFixed(1)}y <br>
+            Speed: ${((-xv)).toFixed(1)}x | ${((-yv)).toFixed(1)}y <br>
             Block ID: ${world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)]} <br>
             Array: ${Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)} / ${world1.length - 1} | ${world1w}w ${world1h}h <br>
             Canvas Size: ${cnv.width} x ${cnv.height} <br>
@@ -285,7 +287,7 @@
             Overlay: 
             ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5).toFixed(1)}r |
             ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5).toFixed(1)}g |
-            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5).toFixed(1)}b |
+            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 2).toFixed(1)}b |
             ${(((time >= 5000 ? (time - 5000) : (5000 - time)) / 20000 + 0.125) * 100).toFixed(1)}a <br>
             <span style="color: ${down ? '#00ff00' : '#ff0000'}">down</span>
             <span style="color: ${left ? '#00ff00' : '#ff0000'}">left</span>
@@ -294,6 +296,7 @@
             <span style="color: ${inWater ? '#00ff00' : '#ff0000'}">inWater</span>
             <span style="color: ${touch ? '#00ff00' : '#ff0000'}">touch</span>
             <span style="color: ${hidden ? '#00ff00' : '#ff0000'}">hidden</span>
+
             `;
             } else document.getElementById('pos').innerHTML = "";
         }

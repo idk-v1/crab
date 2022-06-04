@@ -4,9 +4,11 @@
 //2 = Right
 //3 = Down
 //4 = Left
+//5 = Random / Other
 
 //Player
 let crab1 = new Image(); crab1.onerror = function() {crab1.src = 'textures/missing.png'}; crab1.src = "textures/crab1.png";
+let shell1 = new Image(); shell1.onerror = function() {shell1.src = 'textures/missing.png'}; shell1.src = "textures/shell1.png";
 
 //Terrain
                                                                                                                                         //00
