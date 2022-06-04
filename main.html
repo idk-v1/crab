@@ -49,7 +49,7 @@
     let alt = 0;
 
     //Controls
-    let up = false, left = false, right = false, enter = false, shift = false, down = false, touch = false;
+    let up = false, left = false, right = false, enter = false, shift = false, down = false, touch = false, caps = false;
     let rc = document.getElementById("right");
     let lc = document.getElementById("left");
     let uc = document.getElementById("up");
@@ -60,16 +60,6 @@
     uc.style.width = window.innerWidth / 20 + "px"; uc.style.height = window.innerWidth / 20 + "px"; uc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; uc.style.bottom = (window.innerWidth / 20 + 16) * 2 + "px";
     dc.style.width = window.innerWidth / 20 + "px"; dc.style.height = window.innerWidth / 20 + "px"; dc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; dc.style.bottom = (window.innerWidth / 20 + 16) * 0 + "px";
     hc.style.width = window.innerWidth / 20 + "px"; hc.style.height = window.innerWidth / 20 + "px"; hc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; hc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
-    rc.addEventListener('touchstart', function(event) {right = true});
-    lc.addEventListener('touchstart', function(event) {left = true});
-    uc.addEventListener('touchstart', function(event) {up = true});
-    dc.addEventListener('touchstart', function(event) {down = true}); 
-    hc.addEventListener('touchstart', function(event) {hidden = true}); 
-    rc.addEventListener('touchend', function(event) {right = false});
-    lc.addEventListener('touchend', function(event) {left = false});
-    uc.addEventListener('touchend', function(event) {up = false});
-    dc.addEventListener('touchend', function(event) {down = false});  
-    hc.addEventListener('touchend', function(event) {hidden = false});      
 
     //Player
     let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, speed = 0.125, hidden = false, inWater = false;
@@ -167,14 +157,7 @@
             time++;
             if (time >= 10000) time = 0;
 
-            if (
-                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 || 
-                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 2 || 
-                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 3 || 
-                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 4 || 
-                world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 5
-                ) inWater = true;
-            else inWater = false;
+            if (cblock(1) || cblock(2) || cblock(3) || cblock(4) || cblock(5)) inWater = true; else inWater = false;
 
             if (left && -x > 0 && world1[Math.round((Math.ceil((-x - 13) / 48)) + (Math.floor(-y / 48)) * world1w) - 1] != 0) {
                 xv += 10;
@@ -189,11 +172,11 @@
                 yv += -10;
             }
             if (-x < 0) x = 0;
-            if (-x > world1w * 48) x = -world1w * 48 + 13;
+            if (-x > world1w * 48) x = -world1w * 48;
             if (-y < 0) y = 0;
-            if (-y > world1h * 48) y = -world1h * 48 + 13;
-            xv = Math.round(xv + 2 * ((world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 2 ? 2 : 0) - (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 4 ? 2 : 0))) / (inWater ? 2 : 1);
-            yv = Math.round(yv + 2 * ((world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 1 ? 2 : 0) - (world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == 3 ? 2 : 0))) / (inWater ? 2 : 1);
+            if (-y > world1h * 48) y = -world1h * 48;
+            xv = Math.round(xv + 2 * ((cblock(2) ? 2 : 0) - (cblock(4) ? 2 : 0))) / (inWater ? 2 : 1);
+            yv = Math.round(yv + 2 * ((cblock(1) ? 2 : 0) - (cblock(3) ? 2 : 0))) / (inWater ? 2 : 1);
             y += Math.round(yv / 2);
             x += Math.round(xv / 2);
             xv /= 10;
@@ -211,76 +194,76 @@
 
         if (!mm) {
             ctx.save();
-            ctx.translate(x * Math.sin(47.125) + (385 * (cnv.height / 750)), y * Math.tan(47.125) + (400 * (cnv.height / 750)));
+            ctx.translate(x * Math.sin(47.125) + 390 * (cnv.width / 750), y * Math.tan(47.125) + 405 * (cnv.height / 750));
             ctx.scale(2 * (cnv.width / 1000), 1 * (cnv.height / 1000));
             ctx.rotate(45 * Math.PI / 180);
             for (let i = 0; i < world1.length; i++) {
                 switch(world1[i]) {
 
                     //WATER
-                    case 1:
-                        ctx.drawImage(water1, 0, alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
+                    case 1: ctx.drawImage(water1, 0, alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
                         break;
-                    case 2:
-                        ctx.drawImage(water2, alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
+                    case 2: ctx.drawImage(water2, alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
                         break;
-                    case 3:
-                        ctx.drawImage(water3, 0, 32 - alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
+                    case 3: ctx.drawImage(water3, 0, 32 - alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
                         break;
-                    case 4:
-                        ctx.drawImage(water4, 32 - alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
+                    case 4: ctx.drawImage(water4, 32 - alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
                         break;
-                    case 5:
-                        ctx.drawImage(water5, 0, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 5: ctx.drawImage(water5, 0, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
 
                     //SAND
-                    case 6:
-                        ctx.drawImage(sand1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 6: ctx.drawImage(sand1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 7:
-                        ctx.drawImage(sand2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 7: ctx.drawImage(sand2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 8:
-                        ctx.drawImage(sand3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 8: ctx.drawImage(sand3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 9:
-                        ctx.drawImage(sand4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 9: ctx.drawImage(sand4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 10:
-                        ctx.drawImage((i % 5 == 3 ? sand4 : i % 5 == 2 ? sand3 : i % 5 == 1 ? sand2 : sand1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 10: ctx.drawImage((i % 5 == 3 ? sand4 : i % 5 == 2 ? sand3 : i % 5 == 1 ? sand2 : sand1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
 
-                    case 11:
-                        ctx.drawImage(moss1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    //MOSS
+                    case 11: ctx.drawImage(moss1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 12:
-                        ctx.drawImage(moss2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 12: ctx.drawImage(moss2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 13:
-                        ctx.drawImage(moss3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 13: ctx.drawImage(moss3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 14:
-                        ctx.drawImage(moss4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 14: ctx.drawImage(moss4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 15:
-                        ctx.drawImage((i % 5 == 3 ? moss4 : i % 5 == 2 ? moss3 : i % 5 == 1 ? moss2 : moss1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    case 15: ctx.drawImage((i % 5 == 3 ? moss4 : i % 5 == 2 ? moss3 : i % 5 == 1 ? moss2 : moss1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
 
-                    case 16:
-                        ctx.drawImage(grass1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    //GRASS
+                    case 16: ctx.drawImage(grass1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    case 21:
-                        ctx.drawImage(dirt1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                    
+                    //DIRT
+                    case 21: ctx.drawImage(dirt1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                    default:
-                        ctx.clearRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48)
+
+                    //VOID
+                    default: ctx.clearRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
+                        break;
                 }   
             }
             ctx.restore();
             ctx.save();
             ctx.translate(cnv.width / 2, cnv.height / 2);
-            ctx.drawImage(crab1, 0, 0);
+            ctx.scale(2 * (cnv.width / 1000), 1 * (cnv.height / 1000));
+            ctx.rotate(45 * Math.PI / 180);
+            let grad = ctx.createRadialGradient(0, 0, cnv.width * (750 / cnv.height) / 10, 0, 0, cnv.width * (750 / cnv.height) * 1.75);
+            grad.addColorStop(0, "#22223300");
+            grad.addColorStop(0.125, "#22223380");
+            grad.addColorStop(0.25, "#222233ff");
+            ctx.fillStyle = grad;
+            ctx.fillRect(-cnv.width, -cnv.height, cnv.width * 2, cnv.height * 2);
+            ctx.restore();
+            ctx.save();
+            ctx.translate(cnv.width / 2, cnv.height / 2);
+            ctx.drawImage(crab1, 0, 0, 32 * (cnv.width / 750), 32 * (cnv.height / 750));
             ctx.restore();
             ctx.fillStyle = `rgba(
             ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)},
@@ -290,6 +273,8 @@
             )`;
 
             ctx.fillRect(0, 0, cnv.width, cnv.height);
+            document.getElementById('pos').style.fontSize = `${Math.floor(cnv.width / 50)}px`;
+            if (caps) {
             document.getElementById('pos').innerHTML = `
             Position: ${(-x).toFixed(1)}x | ${Math.round(-y).toFixed(1)}y <br>
             Speed: ${(Math.abs(xv)).toFixed(1)}x | ${(Math.abs(yv)).toFixed(1)}y <br>
@@ -310,6 +295,7 @@
             <span style="color: ${touch ? '#00ff00' : '#ff0000'}">touch</span>
             <span style="color: ${hidden ? '#00ff00' : '#ff0000'}">hidden</span>
             `;
+            } else document.getElementById('pos').innerHTML = "";
         }
     }
 
@@ -331,6 +317,7 @@
         if (event.key == "s" || event.key == "S") {down = true; touch = false;}
         if (event.key == "Shift") {shift = true; hidden = true; touch = false;}
         if (event.key == "Enter") enter = true;
+        if (event.getModifierState("CapsLock")) {caps = true; touch = false;}
         });
         document.addEventListener('keyup', function(event) {
         if (event.key == "a" || event.key == "A") left = false;
@@ -340,10 +327,21 @@
         if (event.key == "Shift") {shift = false; hidden = false;}
         if (event.key == "Enter") enter = false;
         if (event.key == "Escape") play = !play;
+        if (!event.getModifierState("CapsLock")) {caps = false;}
         });
         document.addEventListener('touchstart', function(event) {
             touch = true;
         });
+        rc.addEventListener('touchstart', function(event) {right = true});
+        lc.addEventListener('touchstart', function(event) {left = true});
+        uc.addEventListener('touchstart', function(event) {up = true});
+        dc.addEventListener('touchstart', function(event) {down = true}); 
+        hc.addEventListener('touchstart', function(event) {hidden = true}); 
+        rc.addEventListener('touchend', function(event) {right = false});
+        lc.addEventListener('touchend', function(event) {left = false});
+        uc.addEventListener('touchend', function(event) {up = false});
+        dc.addEventListener('touchend', function(event) {down = false});  
+        hc.addEventListener('touchend', function(event) {hidden = false});      
     }
 
     function win() {
@@ -351,6 +349,26 @@
         document.getElementById('win').play();
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, cnv.width, cnv.height);
+    }
+
+    function cblock(block) {
+        return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == block;
+    }
+
+    function lblock(block) {
+        return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w) - 1] == block;
+    }
+
+    function rblock(block) {
+        return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w) + 1] == block;
+    }
+
+    function ublock(block) {
+        return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w) - world1w] == block;
+    }
+
+    function dblock(block) {
+        return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w) + world1w] == block;
     }
 
 </script>
