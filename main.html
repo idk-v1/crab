@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<canvas width="1000%" height="1000%" style="position: fixed; top: 0%; left: 50%; image-rendering: pixelated; transform: translate(-50%);" id="cnv"></canvas>
-<center id="title" style="position: fixed; top: 20%; left: 50%; color: #dfdfdf; font-weight: 900; font-size: 200%; transform: translate(-50%); width: 100%; text-shadow: 2px 2px #8f8fff; user-select: none;">[PLACEHOLDER CRAB GAME NAME]</center>
-<center id="strt" style="position: fixed; top: 65%; left: 45%; background-color: #1f1f5f; width: 10%; height: 7.5%; cursor: pointer; border-color: #4f4f7f; border-width: 2.5px; border-style: outset; transform: translate( -5%);" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
-<center id="bttntxt" style="position: fixed; top: 67.5%; left: 50%; color: #7f7fcf; font-weight: 700; cursor: pointer; font-size: 100%; transform: translate(-55%); width: 5%; user-select: none;" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
-<img src="textures/shell1.png" id="menushell" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
-<img src="textures/crack_small.png" id="menucracks" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
-<img src="textures/crab1.png" id="menucrab" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
-<img src="textures/sign_play.png" id="menusign" style="position: fixed; top: 40%; left: 45%; transform: translate(-55%); width: 128px; height: 128px; image-rendering: pixelated; user-select: none; -moz-user-select: none;" onclick="crabclick()" draggable="false"></img>
-<!-- video style="position: fixed; width: 100%; height: 100%; display: none;" id="win" src="textures/crabrave.mp4"></video -->
-<div style="position: fixed; top: 0%; left: 0%; color: white; font-weight: 400; font-family: 'Courier New', Courier, monospace;" id="pos"></div>
-<img src="textures/cr.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="right" dragable = "false" ></img>
-<img src="textures/cl.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="left" dragable = "false" ></img>
-<img src="textures/cu.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="up" dragable = "false" ></img>
-<img src="textures/cd.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="down" dragable = "false" ></img>
-<img src="textures/ch.png" style="user-select: none; -moz-user-select: none; transform: translate(-50% -50%); position: fixed; display: none; image-rendering: pixelated;" id="hide" dragable = "false" ></img>
+<link rel="stylesheet" href="style.css">
+
+<canvas width="1000%" height="1000%" id="cnv"></canvas>
+<center id="title">[PLACEHOLDER CRAB GAME NAME]</center>
+<center id="strt" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
+<center id="bttntxt" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()">START</center>
+<img src="textures/shell1.png" class="menu" id="menushell" onclick="crabclick()" draggable="false"></img>
+<img src="textures/crack_small.png" class="menu" id="menucracks" onclick="crabclick()" draggable="false"></img>
+<img src="textures/crab1.png" class="menu" id="menucrab" onclick="crabclick()" draggable="false"></img>
+<img src="textures/sign_play.png" class="menu" id="menusign" onclick="crabclick()" draggable="false"></img>
+<!-- video id="win" src="textures/crabrave.mp4"></video -->
+<div id="pos"></div>
+<img src="textures/cr.png" class="control" id="right" dragable = "false" ></img>
+<img src="textures/cl.png" class="control" id="left" dragable = "false" ></img>
+<img src="textures/cu.png" class="control" id="up" dragable = "false" ></img>
+<img src="textures/cd.png" class="control" id="down" dragable = "false" ></img>
+<img src="textures/ch.png" class="control" id="hide" dragable = "false" ></img>
+<style src="style.css"></style>
 <script src="textures/textures.js"></script>
 <script>
 
@@ -25,10 +28,6 @@
     let mnushell = document.getElementById('menushell');
     let mnucracks = document.getElementById('menucracks');
     let mnusign = document.getElementById('menusign');
-    mnusign.style.transform = "rotate(0)";
-    mnushell.style.transform = "rotate(0)";
-    mnucrab.style.transform = "rotate(0)";
-    mnucracks.style.transform = "rotate(0)";
     mnucracks.style.display = "none";
 
     //Canvas
@@ -260,7 +259,7 @@
             grad.addColorStop(0.25, "rgba(34, 34, 51," + ((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 150 + 0.2) + ")");
             grad.addColorStop(0.375, "#222233ff");
             ctx.fillStyle = grad;
-            ctx.fillRect(-cnv.width, -cnv.height, cnv.width * 2, cnv.height * 2);
+            ctx.fillRect(-world1w * 48, -world1h * 48, world1w * 48 * 2, world1h * 48 * 2);
             ctx.restore();
             ctx.save();
             ctx.translate(cnv.width / 2, cnv.height / 2);
