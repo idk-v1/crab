@@ -3,8 +3,8 @@
 #### Currently has a decent menu screen, a sort of easy to make map format and basic collisions / water physics.
 ###
 ``v-00.01.05.07`` <br>
-``v-rl.sb.ts.bg`` <br>
+``v-rl.sb.ft.bg`` <br>
 - rl - Release
 - sb - Sub Release
-- ts - Test
+- ft - Feature
 - bg - Bugfix
