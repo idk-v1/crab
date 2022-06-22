@@ -58,7 +58,7 @@
     lc.style.width = window.innerWidth / 20 + "px"; lc.style.height = window.innerWidth / 20 + "px"; lc.style.right = (window.innerWidth / 20 + 16) * 2 + "px"; lc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
     uc.style.width = window.innerWidth / 20 + "px"; uc.style.height = window.innerWidth / 20 + "px"; uc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; uc.style.bottom = (window.innerWidth / 20 + 16) * 2 + "px";
     dc.style.width = window.innerWidth / 20 + "px"; dc.style.height = window.innerWidth / 20 + "px"; dc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; dc.style.bottom = (window.innerWidth / 20 + 16) * 0 + "px";
-    hc.style.width = window.innerWidth / 20 + "px"; hc.style.height = window.innerWidth / 20 + "px"; hc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; hc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
+    hc.style.width = window.innerWidth / 20 + "px"; hc.style.height = window.innerWidth / 20 + "px"; hc.style.left = (window.innerWidth / 20 + 16) * 1 + "px"; hc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
 
     //Player
     let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, speed = 0.125, hidden = false, inWater = false;
@@ -246,8 +246,11 @@
                     //VOID
                     default: ctx.clearRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
                         break;
-                }   
+                }
+ctx.strokeStyle = "#00000080";
+ctx.strokeRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
             }
+
             ctx.restore();
             ctx.save();
             ctx.translate(cnv.width / 2, cnv.height / 2);
@@ -338,12 +341,12 @@
         lc.addEventListener('touchstart', function(event) {left = true});
         uc.addEventListener('touchstart', function(event) {up = true});
         dc.addEventListener('touchstart', function(event) {down = true}); 
-        hc.addEventListener('touchstart', function(event) {hidden = true}); 
+        hc.addEventListener('touchstart', function(event) {hidden = !hidden}); 
         rc.addEventListener('touchend', function(event) {right = false});
         lc.addEventListener('touchend', function(event) {left = false});
         uc.addEventListener('touchend', function(event) {up = false});
         dc.addEventListener('touchend', function(event) {down = false});  
-        hc.addEventListener('touchend', function(event) {hidden = false});      
+        hc.addEventListener('touchend', function(event) {});      
     }
 
     function win() {
