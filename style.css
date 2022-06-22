@@ -65,7 +65,7 @@ video {
 
 #strt {
     position: fixed;
-    top: 65%;
+    top: 75%;
     left: 45%;
     background-color: #1f1f5f;
     width: 10%;
@@ -79,7 +79,7 @@ video {
 
 #bttntxt {
     position: fixed;
-    top: 67.5%;
+    top: 77.5%;
     left: 50%;
     color: #7f7fcf;
     font-weight: 700;
