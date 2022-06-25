@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="style.css">
-
 <canvas width="1000%" height="1000%" id="cnv"></canvas>
 <center id="title">[PLACEHOLDER CRAB GAME NAME]</center>
 <center id="strt" onclick="setup()" onmouseover="mouseover()" onmouseout="mouseout()"></center>
@@ -16,31 +15,29 @@
 <img src="textures/cu.png" class="control" id="up" dragable = "false" ></img>
 <img src="textures/cd.png" class="control" id="down" dragable = "false" ></img>
 <img src="textures/ch.png" class="control" id="hide" dragable = "false" ></img>
-<style src="style.css"></style>
+<script src="mainmenu.js"></script>
 <script src="textures/textures.js"></script>
+<script src="setup.js"></script>
+<script src="update.js"></script>
+<script src="render.js"></script>
+<script src="world1.js"></script>
 <script>
 
-    //Main Menu
+    //Main Menu vars
     let menucrab = 0;
     let mnucrabpos = 0;
     let craban = 0;
     let mnucrab = document.getElementById('menucrab');
     let mnushell = document.getElementById('menushell');
     let mnucracks = document.getElementById('menucracks');
-    let mnusign = document.getElementById('menusign');
-    mnucracks.style.display = "none";
-
-    //Canvas
-    let cnv = document.getElementById('cnv');
-    let ctx = cnv.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-
-    //Menu screen
+    let mnusign = document.getElementById('menusign'); mnucracks.style.display = "none";
     let mm = true;
-    document.querySelector('body').style.backgroundColor = "#222233";
-    document.addEventListener('contextmenu', event => event.preventDefault());
 
-    //Time
+    //Canvas vars
+    let cnv = document.getElementById('cnv');
+    let ctx = cnv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.webkitImageSmoothingEnabled = false; ctx.mozImageSmoothingEnabled = false;
+
+    //Time vars
     let time = 0;
     let dt = 0;
     let lastTime = performance.now();
@@ -48,26 +45,28 @@
     let alt = 0;
     let dt2 = 0;
 
-    //Controls
+    //Control vars
     let up = false, left = false, right = false, enter = false, shift = false, down = false, touch = false, caps = false;
     let rc = document.getElementById("right");
     let lc = document.getElementById("left");
     let uc = document.getElementById("up");
     let dc = document.getElementById("down");
     let hc = document.getElementById('hide');
+
+    //Control Positioning
     rc.style.width = window.innerWidth / 20 + "px"; rc.style.height = window.innerWidth / 20 + "px"; rc.style.right = (window.innerWidth / 20 + 16) * 0 + "px"; rc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
     lc.style.width = window.innerWidth / 20 + "px"; lc.style.height = window.innerWidth / 20 + "px"; lc.style.right = (window.innerWidth / 20 + 16) * 2 + "px"; lc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
     uc.style.width = window.innerWidth / 20 + "px"; uc.style.height = window.innerWidth / 20 + "px"; uc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; uc.style.bottom = (window.innerWidth / 20 + 16) * 2 + "px";
     dc.style.width = window.innerWidth / 20 + "px"; dc.style.height = window.innerWidth / 20 + "px"; dc.style.right = (window.innerWidth / 20 + 16) * 1 + "px"; dc.style.bottom = (window.innerWidth / 20 + 16) * 0 + "px";
     hc.style.width = window.innerWidth / 20 + "px"; hc.style.height = window.innerWidth / 20 + "px"; hc.style.left = (window.innerWidth / 20 + 16) * 1 + "px"; hc.style.bottom = (window.innerWidth / 20 + 16) * 1 + "px";
-
-    //Player
+    
+    //Misc
     let x = 0, y = 0, d = 1, h = 0, xv = 0, yv = 0, speed = 0.125, hidden = false, inWater = false;
-
-    //setup();
     let int = setInterval(tick, 0);
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.querySelector('body').style.backgroundColor = "#222233";
 
-
+    //Colors start button
     function mouseover() {
         document.getElementById('strt').style.backgroundColor = '#2f2f6f';
     }
@@ -75,6 +74,7 @@
         document.getElementById('strt').style.backgroundColor = '#1f1f5f';
     }
 
+    //Interactive Crab on MM
     function crabclick() {
         menucrab++;
         setTimeout(function() {
@@ -106,6 +106,7 @@
         else if (menucrab >= 5 && menucrab <= 9) mnucracks.style.display = "initial";
     }
 
+    //Game Loop
     function tick() {
         alt += 0.125;
         if (alt >= 64) alt = 0;
@@ -115,242 +116,12 @@
         lastTime = now;
         while (dt >= 1000 / 60) {
             dt -= 1000 / 60;
-            update();
+            !mm ? update() : mmUpdate();
         }
-        render();
+        !mm ? render() : mmRender();
     }
 
-    function update() {
-
-        if (touch) {
-            rc.style.display = "block";
-            lc.style.display = "block";
-            uc.style.display = "block";
-            dc.style.display = "block";
-            hc.style.display = "block";
-        } else {
-            rc.style.display = "none";
-            lc.style.display = "none";
-            uc.style.display = "none";
-            dc.style.display = "none";
-            hc.style.display = "none";
-        }
-
-        cnv.width = window.innerHeight;
-        cnv.height = window.innerHeight;
-
-        if (!mm && !play) {cnv.style.filter = "blur(10px)";}
-        else {cnv.style.filter = "blur(0px)";}
-
-        if (menucrab >= 15 && mm) {
-            craban++;
-            if (craban >= 20) {craban = 0; mnucrab.src = "textures/crab1.png";}
-            else if (craban >= 15) {mnucrab.src = "textures/crab1w1mm.png";}
-            else if (craban >= 10) {mnucrab.src = "textures/crab1w2mm.png";}
-            else if (craban >= 5) {mnucrab.src = "textures/crab1w3mm.png";}
-            mnucrabpos++;
-            mnucrab.style.left = `${45 - mnucrabpos / 7.5}%`;
-            mnusign.style.left = `${45 - mnucrabpos / 7.5}%`;
-        }
-
-        if (!mm && play) {
-
-            time++;
-            if (time >= 10000) time = 0;
-
-            if (cblock(1) || cblock(2) || cblock(3) || cblock(4) || cblock(5)) inWater = true; else inWater = false;
-
-            if (left && -x > 0 && world1[Math.round((Math.ceil((-x - 13) / 48)) + (Math.floor(-y / 48)) * world1w) - 1] != 0) {
-                xv += 10 * (hidden ? 0 : 1);
-            }
-            if (right && -x < world1w * 48 - 13 && world1[Math.round((Math.floor((-x + 13) / 48)) + (Math.floor(-y / 48)) * world1w)] != 0) {
-                xv += -10 * (hidden ? 0 : 1);
-            }
-            if (up && -y > 0 && world1[Math.round((Math.floor(-x / 48)) + (Math.floor((-y - 13) / 48)) * world1w)] != 0) {
-                yv += 10 * (hidden ? 0 : 1);
-            }
-            if (down && -y < world1h * 48 - 13 && world1[Math.round((Math.floor(-x / 48)) + (Math.ceil((-y + 13) / 48)) * world1w) - world1w] != 0) {
-                yv += -10 * (hidden ? 0 : 1);
-            }
-            if (-x < 0) x = 0;
-            if (-x > world1w * 48) x = -world1w * 48;
-            if (-y < 0) y = 0;
-            if (-y > world1h * 48) y = -world1h * 48;
-            xv = Math.round(xv + 2 * ((cblock(2) ? 2 : 0) - (cblock(4) ? 2 : 0))) / (inWater ? 2 : 1);
-            yv = Math.round(yv + 2 * ((cblock(1) ? 2 : 0) - (cblock(3) ? 2 : 0))) / (inWater ? 2 : 1);
-            y += Math.round(yv / 2);
-            x += Math.round(xv / 2);
-            xv /= 10;
-            yv /= 10;
-        }
-    }
-
-    function render() {
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
-
-        if (mm) {
-            ctx.fillStyle = '#1f1f38';
-            ctx.fillRect(0, 0, cnv.width, cnv.height);
-        }
-
-        if (!mm) {
-            ctx.save();
-            ctx.translate(x * Math.sin(47.125) + 390 * (cnv.width / 750), y * Math.tan(47.125) + 405 * (cnv.height / 750));
-            ctx.scale(2 * (cnv.width / 1000), 1 * (cnv.height / 1000));
-            ctx.rotate(45 * Math.PI / 180);
-            for (let i = 0; i < world1.length; i++) {
-                switch(world1[i]) {
-
-                    //WATER
-                    case 1: ctx.drawImage(water1, 0, alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
-                        break;
-                    case 2: ctx.drawImage(water2, alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
-                        break;
-                    case 3: ctx.drawImage(water3, 0, 32 - alt / 2, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 96);
-                        break;
-                    case 4: ctx.drawImage(water4, 32 - alt / 2, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 96, 48);
-                        break;
-                    case 5: ctx.drawImage(water5, 0, 0, 32, 32, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-
-                    //SAND
-                    case 6: ctx.drawImage(sand1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 7: ctx.drawImage(sand2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 8: ctx.drawImage(sand3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 9: ctx.drawImage(sand4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 10: ctx.drawImage((i % 5 == 3 ? sand4 : i % 5 == 2 ? sand3 : i % 5 == 1 ? sand2 : sand1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-
-                    //MOSS
-                    case 11: ctx.drawImage(moss1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 12: ctx.drawImage(moss2, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 13: ctx.drawImage(moss3, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 14: ctx.drawImage(moss4, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    case 15: ctx.drawImage((i % 5 == 3 ? moss4 : i % 5 == 2 ? moss3 : i % 5 == 1 ? moss2 : moss1), (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-
-                    //GRASS
-                    case 16: ctx.drawImage(grass1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                    
-                    //DIRT
-                    case 21: ctx.drawImage(dirt1, (i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-
-                    //VOID
-                    default: ctx.clearRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-                        break;
-                }
-                ctx.strokeStyle = "#00000050";
-                ctx.strokeRect((i % world1w) * 48 + x, (Math.floor(i / world1w)) * 48 + y, 48, 48);
-            }
-
-            ctx.restore();
-            ctx.save();
-            ctx.translate(cnv.width / 2, cnv.height / 2);
-            ctx.scale(2 * (cnv.width / 1000), 1 * (cnv.height / 1000));
-            ctx.rotate(45 * Math.PI / 180);
-            let grad = ctx.createRadialGradient(0, 0, cnv.width * (750 / cnv.height) / 10, 0, 0, cnv.width * (750 / cnv.height) * 1.625);
-            grad.addColorStop(0, "#22223300");
-            grad.addColorStop(0.125, "rgba(34, 34, 51," + ((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 150) + ")");
-            grad.addColorStop(0.25, "rgba(34, 34, 51," + ((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 150 + 0.2) + ")");
-            grad.addColorStop(0.375, "#222233ff");
-            ctx.fillStyle = grad;
-            ctx.fillRect(-world1w * 48, -world1h * 48, world1w * 48 * 2, world1h * 48 * 2);
-            ctx.restore();
-            ctx.save();
-            ctx.translate(cnv.width / 2, cnv.height / 2);
-            ctx.drawImage(shell1, 0, 0, 32 * (cnv.width / 750), 32 * (cnv.height / 750));
-            if (!hidden) ctx.drawImage(crab1, 0, 0, 32 * (cnv.width / 750), 32 * (cnv.height / 750));
-            ctx.restore();
-            ctx.fillStyle = `rgba(
-            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)},
-            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5)}, 
-            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 2)}, 
-            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 20000 + 0.125)}
-            )`;
-
-            ctx.fillRect(0, 0, cnv.width, cnv.height);
-            document.getElementById('pos').style.fontSize = `${Math.floor(cnv.width / 50)}px`;
-            if (caps) {
-            document.getElementById('pos').innerHTML = `
-            Position: ${(-x).toFixed(1)}x | ${Math.round(-y).toFixed(1)}y <br>
-            Speed: ${((-xv)).toFixed(1)}x | ${((-yv)).toFixed(1)}y <br>
-            Block ID: ${world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)]} <br>
-            Array: ${Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)} / ${world1.length - 1} | ${world1w}w ${world1h}h <br>
-            Canvas Size: ${cnv.width} x ${cnv.height} <br>
-            Time: ${time} / 10000upd <br> 
-            Overlay: 
-            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5).toFixed(1)}r |
-            ${((time >= 5000 ? 5000 - (time - 5000) : 5000 - (5000 - time)) / 37.5).toFixed(1)}g |
-            ${((time >= 5000 ? (time - 5000) : (5000 - time)) / 37.5 / 2).toFixed(1)}b |
-            ${(((time >= 5000 ? (time - 5000) : (5000 - time)) / 20000 + 0.125) * 100).toFixed(1)}a <br>
-            <span style="color: ${down ? '#00ff00' : '#ff0000'}">down</span>
-            <span style="color: ${left ? '#00ff00' : '#ff0000'}">left</span>
-            <span style="color: ${right ? '#00ff00' : '#ff0000'}">right</span>
-            <span style="color: ${up ? '#00ff00' : '#ff0000'}">up</span>
-            <span style="color: ${inWater ? '#00ff00' : '#ff0000'}">inWater</span>
-            <span style="color: ${touch ? '#00ff00' : '#ff0000'}">touch</span>
-            <span style="color: ${hidden ? '#00ff00' : '#ff0000'}">hidden</span>
-            <br><span style="font-size: ${Math.floor(cnv.width / 25)}px">FPS: ${(1000 / dt2).toFixed(0)}</span>
-            `;
-            } else document.getElementById('pos').innerHTML = "";
-        }
-    }
-
-    function setup() {
-        mnucrab.remove();
-        mnucracks.remove();
-        mnushell.remove();
-        mnusign.remove();
-        document.getElementById('title').remove();
-        document.getElementById('strt').remove();
-        document.getElementById('bttntxt').remove();
-        mm = false;
-
-        //Keys
-        document.addEventListener('keydown', function(event) {
-        if (event.key == "a" || event.key == "A") {left = true; touch = false;}
-        if (event.key == "d" || event.key == "D") {right = true; touch = false;}
-        if (event.key == "w" || event.key == "W") {up = true; touch = false;}
-        if (event.key == "s" || event.key == "S") {down = true; touch = false;}
-        if (event.key == "Shift") {shift = true; hidden = true; touch = false;}
-        if (event.key == "Enter") enter = true;
-        if (event.getModifierState("CapsLock")) {caps = true; touch = false;}
-        });
-        document.addEventListener('keyup', function(event) {
-        if (event.key == "a" || event.key == "A") left = false;
-        if (event.key == "d" || event.key == "D") right = false;
-        if (event.key == "w" || event.key == "W") up = false;
-        if (event.key == "s" || event.key == "S") down = false;
-        if (event.key == "Shift") {shift = false; hidden = false;}
-        if (event.key == "Enter") enter = false;
-        if (event.key == "Escape") play = !play;
-        if (!event.getModifierState("CapsLock")) {caps = false;}
-        });
-        document.addEventListener('touchstart', function(event) {
-            touch = true;
-        });
-        rc.addEventListener('touchstart', function(event) {right = true});
-        lc.addEventListener('touchstart', function(event) {left = true});
-        uc.addEventListener('touchstart', function(event) {up = true});
-        dc.addEventListener('touchstart', function(event) {down = true}); 
-        hc.addEventListener('touchstart', function(event) {hidden = !hidden}); 
-        rc.addEventListener('touchend', function(event) {right = false});
-        lc.addEventListener('touchend', function(event) {left = false});
-        uc.addEventListener('touchend', function(event) {up = false});
-        dc.addEventListener('touchend', function(event) {down = false});  
-        hc.addEventListener('touchend', function(event) {});      
-    }
-
+    //NOT IMPLEMENTED
     function win() {
         document.getElementById('win').style.display = "block";
         document.getElementById('win').play();
@@ -358,6 +129,7 @@
         ctx.fillRect(0, 0, cnv.width, cnv.height);
     }
 
+    //Positioning for Collision Detection
     function cblock(block) {
         return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w)] == block;
     }
@@ -377,6 +149,4 @@
     function dblock(block) {
         return world1[Math.round((Math.floor(-x / 48)) + (Math.floor(-y / 48)) * world1w) + world1w] == block;
     }
-
 </script>
-<script src="world1.js"></script>
